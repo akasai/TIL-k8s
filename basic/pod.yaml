@@ -1,0 +1,10 @@
+apiVersion: v1 # string
+kind: Pod # string
+metadata: # dic
+  name: my-pod # string
+  labels: # dic
+    app: my-app
+spec:
+  containers: # list
+    - name: nginx
+      image: nginx

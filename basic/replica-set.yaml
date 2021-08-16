@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+meatadata:
+  name: my-rs
+spec:
+  replicas: 3
+  selector: # RS만 갖는 항목, 관련 label을 관리. 기존에 만들어진 pod도 관리가능
+    matchLabels:
+      app: my-app
+  template: # RS가 관리할 pod의 스펙
+    metadata:
+      name: my-pod
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
