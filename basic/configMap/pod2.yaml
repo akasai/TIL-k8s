@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-configmap2
+  labels:
+    run: pod-configmap2
+spec:
+  containers:
+    - image: nginx
+      name: pod-configmap2
+      env:
+        - name: FONT_COLOR
+          valueFrom:
+            configMapKeyRef:
+              name: configmap-demo-4
+              key: COLOR

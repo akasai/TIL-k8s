@@ -1,0 +1,8 @@
+# --from-file
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-demo-3
+data:
+  COLOR: | # 자동으로 generate 된다.
+    BLUE

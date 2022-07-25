@@ -1,0 +1,5 @@
+# 기본 생성법
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-demo-1

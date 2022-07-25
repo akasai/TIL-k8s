@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-configmap4
+  labels:
+    run: pod-configmap4
+spec:
+  containers:
+    - image: nginx
+      name: pod-configmap4
+      env:
+        - name: BG
+      volumeMounts:
+        - name: config-map-demo
+          mountPath: "/config"
+  volumes:
+    - name: config-map-demo
+      configMap:
+        name: configmap-demo-4
+        items:
+          - key: BG
+            path: "BACKGROUND"
