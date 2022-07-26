@@ -1,0 +1,4 @@
+configMapGenerator:
+- name: game-config5
+  files:
+  - game-special-key=./env/game.properties

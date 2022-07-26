@@ -1,0 +1,15 @@
+#configMapGenerator:
+#- name: game-config4
+#  files:
+#  - ./env/game.properties
+
+#configMapGenerator:
+#- name: game-config5
+#  files:
+#  - game-special-key=./env/game.properties
+
+configMapGenerator:
+  - name: game-config6
+    literals:
+      - special.how=very
+      - special.type=charm

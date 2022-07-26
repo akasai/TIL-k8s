@@ -1,0 +1,14 @@
+# kubectl create configmap game-config3 --from-env-file=./env/game.properties
+apiVersion: v1
+data:
+  enemies: aliens
+  enemies.cheat: "true"
+  enemies.cheat.level: noGoodRotten
+  lives: "3"
+  secret.code.allowed: "true"
+  secret.code.lives: "30"
+  secret.code.passphrase: UUDDLRLRBABAS
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: game-config3

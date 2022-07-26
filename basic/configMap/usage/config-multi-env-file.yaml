@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  allow.textmode: "true"
+  color.bad: yellow
+  color.good: purple
+  enemies: aliens
+  enemies.cheat: "true"
+  enemies.cheat.level: noGoodRotten
+  how.nice.to.look: fairlyNice
+  lives: "3"
+  secret.code.allowed: "true"
+  secret.code.lives: "30"
+  secret.code.passphrase: UUDDLRLRBABAS
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: config-multi-env-file
