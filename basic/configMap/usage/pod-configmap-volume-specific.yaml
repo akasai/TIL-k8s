@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod4
+spec:
+  containers:
+    - image: nginx # k8s.gcr.io/busybox
+      name: dapi-test-pod4
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+          name: special-config
+          items:
+            - key: special.how
+              path: keys
