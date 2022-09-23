@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort # Service의 타입
+  ports:
+    - targetPort: 80 # Pod의 external port, 미입력시 port와 동일한 값
+      port: 80 # @Required: Service의 Internal port
+      nodePort: 30088 # Node의 external port (30000~32767), 미임력시 자동할당
+  selector: # Service가 관리할 오브젝트(Pod)의 labels
+    app: my-app
+
