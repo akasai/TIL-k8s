@@ -125,7 +125,7 @@
     $ kubectl edit pod redis # edit image section
     ```
     
-## ReplicaSet
+### ReplicaSet
 
 1. How many PODs exist on the system?
 
@@ -248,4 +248,120 @@
    $ kubectl scale rs <rs_name> --replicas=5 # scale command that can do only scaling 
    ---
    $ kubectl edit rs <rs_name> # edit replicas section
+   ```
+
+### Deployment
+
+1. How many PODs exist on the system?
+
+   ```shell
+   $ kubectl get pod
+   ``` 
+
+2. How many ReplicaSets exist on the system?
+
+   ```shell
+   $ kubectl get replicaset # or rs
+   ```
+
+3. How many Deployments exist on the system?
+
+   ```shell
+   $ kubectl get deployment # or deploy
+   ```
+
+4. How many Deployments exist on the system now?
+
+   ```shell
+   $ kubectl get deployment # or deploy
+   ```
+
+5. How many ReplicaSets exist on the system now?
+
+   ```shell
+   $ kubectl get replicaset # or rs
+   ```
+
+6. How many PODs exist on the system now?
+
+   ```shell
+   $ kubectl get pod
+   ``` 
+
+7. Out of all the existing PODs, how many are ready?
+
+   ```shell
+   $ kubectl get pod # check the READY column
+   ``` 
+
+8. What is the image used to create the pods in the new deployment?
+
+   ```shell
+   $ kubectl describe deployment <deployment_name> | grep -i image # check image name
+   ``` 
+
+9. 
+
+   ```shell
+   $ kubectl describe pod <pod-name> # check event section
+   ```
+   
+10. Create a new Deployment using the deployment-definition-1.yaml file located at /root/.
+There is an issue with the file, so try to fix it.
+
+   ```yaml
+   apiVersion: apps/v1
+   kind: deployment => Deployment # Capital D
+   metadata:
+      name: deployment-1
+   spec:
+      replicas: 2
+      selector:
+         matchLabels:
+            name: busybox-pod
+      template:
+         metadata:
+            labels:
+               name: busybox-pod
+         spec:
+            containers:
+             - name: busybox-container
+               image: busybox888
+               command:
+                 - sh
+                 - "-c"
+                 - echo Hello Kubernetes! && sleep 3600
+   ```
+
+11. Create a new Deployment with the below attributes using your own deployment definition file.
+* Name: httpd-frontend;
+* Replicas: 3;
+* Image: httpd:2.4-alpine
+
+
+   ```shell
+   $ kubectl create deployment httpd-frontend --image=httpd:2.4-alpine --replicas=3 --dry-run=client -o yaml > deployment.yaml
+   $ kubectl apply -f deployment.yaml
+   ```
+
+   ```yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: httpd-frontend
+      name: httpd-frontend
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: httpd-frontend
+      template:
+        metadata:
+          labels:
+            app: httpd-frontend
+        spec:
+          containers:
+          - image: httpd:2.4-alpine
+            name: httpd
    ```
