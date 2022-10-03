@@ -334,10 +334,9 @@ There is an issue with the file, so try to fix it.
    ```
 
 11. Create a new Deployment with the below attributes using your own deployment definition file.
-* Name: httpd-frontend;
-* Replicas: 3;
-* Image: httpd:2.4-alpine
-
+    * Name: httpd-frontend;
+    * Replicas: 3;
+    * Image: httpd:2.4-alpine
 
    ```shell
    $ kubectl create deployment httpd-frontend --image=httpd:2.4-alpine --replicas=3 --dry-run=client -o yaml > deployment.yaml
@@ -365,3 +364,134 @@ There is an issue with the file, so try to fix it.
           - image: httpd:2.4-alpine
             name: httpd
    ```
+
+### Namespace
+
+1. How many Namespaces exist on the system?
+
+   ```shell
+   $ kubectl get ns # or namespaces
+   ---
+   $ kubectl get ns --no-headers | wc -l # counting
+   ```
+
+2. How many pods exist in the `research` namespace?
+
+   ```shell
+   $ kubectl get pod -n=research
+   ```
+
+3. Create a POD in the `finance` namespace. Use the spec given below.
+   - Name: redis
+   - Image Name: redis
+
+   ```shell
+   $ kubectl run redis --image=redis --namespace=finance --dry-run=client -o yaml > pod.yaml
+   ```
+   
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     labels:
+       run: redis
+     name: redis
+     namespace: finance
+   spec:
+     containers:
+      - image: redis
+        name: redis
+   ```
+   
+4. Which namespace has the `blue` pod in it?
+
+   ```shell
+   $ kubectl get po --all-namespaces | grep blue
+   ```
+
+5. Access the Blue web application using the link above your terminal!!
+
+6. What DNS name should the `Blue` application use to access the database `db-service` in its own namespace - `marketing`?
+
+   ```shell
+   $ kubectl get po --all-namespaces | grep blue # check namespace of blue
+   ```
+   
+7. What DNS name should the `Blue` application use to access the database `db-service` in the `dev` namespace?
+
+   =>  Since the `blue` application and the `db-service` are in different namespaces.
+
+   `<application_name>.<namespace>.svc.cluster.local`
+
+### Service
+
+1. How many Services exist on the system?
+
+```shell
+$ kubectl get svc # or service
+```
+
+3. What is the type of the default `kubernetes` service?
+
+```shell
+$ kubectl get svc # check Type column
+```
+
+4. What is the `targetPort` configured on the `kubernetes` service?
+
+```shell
+$ kubectl describe svc kubernetes | grep -i targetport
+```
+
+5. How many labels are configured on the `kubernetes` service?
+
+```shell
+$ kubectl describe svc kubernetes # check Labels section
+```
+
+6. How many Endpoints are attached on the `kubernetes` service?
+
+```shell
+$ kubectl describe svc kubernetes # check Endpoints section
+```
+
+7. How many Deployments exist on the system now?
+
+```shell
+$ kubectl get deploy
+```
+
+8. What is the image used to create the pods in the deployment?
+
+```shell
+$ kubectl describe deploy simple-webapp-deployment | grep -i image
+```
+
+9. Are you able to accesss the Web App UI?
+
+10. Create a new service to access the web application using the `service-definition-1.yaml` file.
+    - Name: webapp-service
+    - Type: NodePort
+    - targetPort: 8080
+    - port: 8080
+    - nodePort: 30080
+    - selector: name: simple-webapp
+
+   ```yaml
+   apiVersion: v1
+   kind: Service
+   metadata:
+      name: webapp-service
+   spec:
+      type: NodePort
+      ports:
+       - targetPort: 8080
+         port: 8080
+         nodePort: 30080
+      selector:
+        name: simple-webapp
+   ```
+   ```shell
+   $ kubectl apply -f service.yaml 
+   ```
+
