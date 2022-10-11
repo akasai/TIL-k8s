@@ -150,3 +150,94 @@
    $ kubectl apply -f replicaset-definition-1.yaml
    ```
 
+## Taints & Tolerations
+
+1. How many `nodes` exist on the system? Including the `controlplane` node.
+
+   ```shell
+   $ kubectl get node --no-headers | wc -l
+   ```
+   
+2. Do any taints exist on `node01` node?
+
+   ```shell
+   $ kubectl describe node node01 | grep -i taints
+   ```
+   
+3. Create a taint on `node01` with key of `spray`, value of `mortein` and effect of `NoSchedule`
+
+   ```shell
+   $ kubectl taint node node01 spray=mortein:NoSchedule
+   ```
+
+4. Create a new pod with the nginx image and `pod` name as `mosquito`.
+
+   ```shell
+   $ kubectl run mosquito --image=nginx
+   ```
+   
+5. What is the state of the POD?
+
+   ```shell
+   $ kubectl get po # check the STATE column
+   ```
+   
+6. Why do you think the pod is in a pending state?
+
+   ```shell
+   $ kubectl describe po node01 # check Event section
+   ```
+   
+7. Create another pod named `bee` with the `nginx` image, which has a toleration set to the taint `mortein`. 
+   
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata: 
+      name: bee
+   spec:
+      containers:
+        - image: nginx
+          name: bee
+      tolerations: # Add toleration section
+        - key: spray
+          value: mortein
+          effect: NoSchedule
+          operator: Equal
+   ```
+
+   ```shell
+   $ kubectl create -f pod.yaml
+   ```
+
+8. Notice the `bee` pod was scheduled on node `node01` despite the taint.
+
+   ```shell
+   $ kubectl get po -o wide # check NODE column
+   ```
+   
+9. Do you see any taints on `controlplane` node?
+
+   ```shell
+   $ kubectl describe node controlplane # check the taints section
+   ```
+   
+10. Remove the taint on `controlplane`, which currently has the taint effect of `NoSchedule`.
+
+   ```shell
+   $ kubectl taint node controlplane node-role.kubernetes.io/master:NoSchedule- # minus mean untaint
+   $ kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
+   ```
+   
+11. What is the state of the pod `mosquito` now?
+
+   ```shell
+   $ kubectl get po # check STATE column
+   ```
+   
+12. Which node is the POD mosquito on now?
+
+   ```shell
+   $ kubectl get po -o wide # check NODE column
+   ```
+
