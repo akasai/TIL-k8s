@@ -241,3 +241,144 @@
    $ kubectl get po -o wide # check NODE column
    ```
 
+## Node Affinity
+
+1. How many Labels exist on node node01?
+
+   ```shell
+   $ kubectl get node node01 --show-labels
+   ---
+   $ kubectl describe node node01 # counting labels
+   ```
+
+2. What is the value set to the label key `beta.kubernetes.io/arch` on `node01`?
+
+   ```shell
+   $ kubectl get node node01 --show-labels
+   ---
+   $ kubectl describe node node01 # check the labels
+   ```
+
+3. Apply a label `color=blue` to node `node01`
+
+   ```shell
+   $ kubectl label node node01 color=blue
+   ```
+   
+4. Create a new deployment named `blue` with the `nginx` image and 3 replicas.
+
+   ```shell
+   $ kubectl create deployment blue --image=nginx --replicas=3
+   ```
+
+5. Which nodes `can` the pods for the `blue` deployment be placed on?
+   Make sure to check taints on both nodes!
+
+   ```shell
+   $ kubectl describe node controlplane | grep -i taints
+   $ kubectl describe node node01 | grep -i taints
+   # check all node's taints. all pods allocated at node that taints is none.
+   ```
+   
+6. Set Node Affinity to the deployment to place the pods on `node01` only.
+
+   - Name: blue
+
+   - Replicas: 3
+
+   - Image: nginx
+
+   - NodeAffinity: requiredDuringSchedulingIgnoredDuringExecution
+
+   - Key: color
+
+   - value: blue
+
+   ```shell
+   $ kubectl create deploy blue --image=nginx --replicas=3 --dry-run=client -o yaml > deploy.yaml
+   ```
+
+   ```yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+      labels:
+         app: blue
+      name: blue
+   spec:
+      replicas: 3
+      selector:
+         matchLabels:
+           app: blue
+      template:
+        metadata:
+          labels:
+            app: blue
+        spec:
+          containers:
+            - image: nginx
+              name: nginx
+          affinity: # Add node Affinity
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: color
+                        values:
+                        - blue
+                        operator: In
+   ```
+   
+7. Which nodes are the pods placed on now?
+
+   ```shell
+   $ kubectl get pods -o wide # check the NODE column
+   ```
+   
+8. Create a new deployment named `red` with the `nginx` image and `2` replicas, and ensure it gets placed on the controlplane node only.
+Use the label key - `node-role.kubernetes.io/control-plane` - which is already set on the `controlplane` node.
+
+   - Name: red
+
+   - Replicas: 2
+
+   - Image: nginx
+
+   - NodeAffinity: requiredDuringSchedulingIgnoredDuringExecution
+
+   - Key: node-role.kubernetes.io/control-plane
+
+   - Use the right operator
+
+   ```shell
+   $ kubectl create deploy red --image=nginx --replicas=2 --dry-run=client -o yaml > deploy.yaml
+   ```
+
+   ```yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+      labels:
+         app: red 
+      name: red
+   spec:
+      replicas: 2
+      selector:
+         matchLabels:
+           app: red
+      template:
+        metadata:
+          labels:
+            app: red
+        spec:
+          containers:
+            - image: nginx
+              name: nginx
+          affinity: # Add node Affinity
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: Exists
+   ```
