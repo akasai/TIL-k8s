@@ -382,3 +382,85 @@ Use the label key - `node-role.kubernetes.io/control-plane` - which is already s
                       - key: node-role.kubernetes.io/control-plane
                         operator: Exists
    ```
+
+## Resource Limits
+
+1. A pod called `rabbit` is deployed. Identify the CPU requirements set on the Pod
+
+   ```shell
+   $ kubectl describe pod rabbit # check the CONTAINER.RESOURCES.REQUEST.CPU section
+   ```
+
+2. Delete the `rabbit` Pod.
+
+   ```shell
+   $ kubectl delete pod rabbit
+   ```
+
+3. Another pod called `elephant` has been deployed in the default namespace. It fails to get to a running state. Inspect this pod and identify the `Reason` why it is not running.
+
+   ```shell
+   $ kubectl describe pod elephant # check the Reason section
+   ```
+
+4. The `elephant` pod runs a process that consume 15Mi of memory. Increase the limit of the `elephant` pod to 20Mi.
+   Delete and recreate the pod if required. Do not modify anything other than the required fields.
+
+   * Pod Name: elephant
+   * Image Name: polinux/stress
+   * Memory Limit: 20Mi
+
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+      run: elephant
+      name: elephant
+   spec:
+      containers:
+       - image: polinux/stress
+         name: elephant
+         resources:
+            requests:
+               memory: 15Mi
+            limits:
+               memory: 20Mi 
+   ```
+
+## Daemonsets
+
+1. How many `DaemonSets` are created in the cluster in all namespaces?
+
+   ```shell
+   $ kubectl get ds --all-namespaces
+   ```
+
+2. Which namespace are the `DaemonSets` created in?
+
+   ```shell
+   $ kubectl get ds --all-namespaces
+   ```
+   
+3. Which of the below is a `DaemonSet`?
+
+   ```shell
+   $ kubectl get ds --all-namespaces
+   ```
+
+4. On how many nodes are the pods scheduled by the DaemonSet `kube-proxy`
+
+   ```shell
+   $ kubectl describe daemonset kube-proxy --namespace=kube-system
+   # Desired Number of Nodes Scheduled: 1
+   # Current Number of Nodes Scheduled: 1
+   ```
+
+5. What is the image used by the POD deployed by the `kube-flannel-ds` DaemonSet?
+
+   ```shell
+   $ kubectl create deploy elasticsearch --image=k8s.gcr.io/fluentd-elasticsearch:1.20 --namespace=kube-system -o yaml --dry-run=client > ds.yaml
+   # change kind deployment to daemonset
+   # remove replica section
+   ```
+
+
