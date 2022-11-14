@@ -463,4 +463,132 @@ Use the label key - `node-role.kubernetes.io/control-plane` - which is already s
    # remove replica section
    ```
 
+## Static Pod
 
+1. How many static pods exist in this cluster in all namespaces?
+
+   ```shell
+   $ kubectl get po --all-namespaces # check the suffix with node name
+   ```
+   
+2. Which of the below components is NOT deployed as a static pod?
+
+   ```shell
+   $ kubectl get po --all-namespaces # check the suffix without node name
+   ```
+   
+3. Which of the below components is NOT deployed as a static POD?
+
+   ```shell
+   $ kubectl get po --all-namespaces # check the suffix without node name
+   ```
+   
+4. On which nodes are the static pods created currently?
+
+   ```shell
+   $ kubectl get po --all-namespaces -o wide # check the node column and pod name's suffix
+   ```
+   
+5. What is the path of the directory holding the static pod definition files?
+
+   ```shell
+   $ ps -aux | grep kubelet # check kubelet command and --config options
+   ```
+   
+   ```shell
+   $ vi /var/lib/kubelet/config.yaml # check the staticPodPath section
+   ```
+   
+6. How many pod definition files are present in the manifests folder?
+
+   ```shell
+   $ cd /etc/kubernetes/manifests # counting files
+   ```
+   
+7. What is the docker image used to deploy the kube-api server as a static pod?
+
+   ```shell
+   $ cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep -i Image
+   ```
+
+8. Create a static pod named `static-busybox` that uses the `busybox` image and the command `sleep 1000`
+
+   ```shell
+   $ kubectl run static-busybox --image=busybox -o yaml --dry-run=client --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
+   ```
+   
+9. Edit the image on the static pod to use busybox:1.28.4
+
+   ```shell
+   $ vi /etc/kubernetes/manifests/pod.yaml # edit image section
+   ```
+
+10. We just created a new static pod named static-greenbox. Find it and delete it.
+   This question is a bit tricky. But if you use the knowledge you gained in the previous questions in this lab, you should be able to find the answer to it.
+
+   ```shell
+   $ kubectl get pod --all-namespaces # check the static pod and find which node it is on.
+   $ ssh node01 # connect to target node
+   node01$ ps -aux | grep kubelet # find kubelet option
+   node01$ vi /var/lib/kubelet/config.yaml # check statidPodPath section and find path manifest file on.
+   node01$ cd /etc/just-to-mess-with-you # access to manifest path
+   node01$ rm greenbox.yaml # delete definition yaml file
+   $ kubectl get pod --all-namespaces # check the pod deleted correctly
+   ```
+   
+## Multiple Schedulers
+
+1. What is the name of the POD that deploys the default kubernetes scheduler in this environment?
+
+   ```shell
+   $ kubectl get pods --namespace=kube-system
+   ```
+   
+2. What is the image used to deploy the kubernetes scheduler? Inspect the kubernetes scheduler pod and identify the image
+
+   ```shell
+   $ kubectl describe pod kube-scheduler-controlplane -n=kube-system | grep -i image
+   ```
+   
+3. We have already created the `ServiceAccount` and `ClusterRoleBinding` that our custom scheduler will make use of.
+
+   Checkout the following Kubernetes objects:
+
+   `ServiceAccount`: my-scheduler (kube-system namespace)
+   `ClusterRoleBinding`: my-scheduler-as-kube-scheduler
+   `ClusterRoleBinding`: my-scheduler-as-volume-scheduler
+
+   Run the command: `kubectl get serviceaccount -n kube-system & kubectl get clusterrolebinding`
+
+4. Let's create a configmap that the new scheduler will employ using the concept of `ConfigMap as a volume`.
+   We have already given a configMap definition file called `my-scheduler-configmap.yaml` at `/root/` path that will create a configmap with name 
+   `my-scheduler-config` using the content of file `/root/my-scheduler-config.yaml`.
+
+   ```shell
+   $ kubectl create -f my-scheduler-configmap.yaml
+   ```
+   
+5. Deploy an additional scheduler to the cluster following the given specification.
+Use the manifest file provided at `/root/my-scheduler.yaml`. 
+Use the same image as used by the default kubernetes scheduler.
+
+   ```shell
+   $ kubectl describe po kube-scheduler-controlplane -n=kube-system $ find Image name
+   $ vi my-scheduler.yaml # open custom scheduler manifest file
+   $ kubectl create -f my-scheduler.yaml
+   ```
+   
+6. A POD definition file is given. Use it to create a POD with the new custom scheduler.
+File is located at `/root/nginx-pod.yaml`
+
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+       name: nginx
+   spec:
+       schedulerName: my-scheduler
+       containers:
+           - image: nginx
+             name: nginx
+   ```
